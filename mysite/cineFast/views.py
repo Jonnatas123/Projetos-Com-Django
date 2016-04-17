@@ -24,11 +24,17 @@ def index(request):
 	return HttpResponse(json.dumps(data), content_type='application/json')
 
 def inserir_comentario(request):
-	filme = Filme.objects.get(titulo=request.GET.get("filme"))
+	filme = ''
 	comentario = Comentario();
-	comentario.texto = request.GET.get("filme")
-	comentario.filme = filme
-	comentario.save()
+	comentario.texto = request.GET.get("comentario")
+
+	if(int(request.GET.get("id_comentario")) == 0):
+		filme = Filme.objects.get(titulo=request.GET.get("filme"))
+		comentario.filme = filme
+		comentario.save()
+	else:
+		id = request.GET.get("id_comentario");
+		Comentario.objects.filter(pk=id).update(texto=comentario.texto)
 	return HttpResponse(json.dumps('Ok'), content_type='application/json')
 
 def listar_comentario(request):
@@ -45,3 +51,14 @@ def listar_comentario(request):
 		return HttpResponse(json.dumps('Nenhum comentário'), content_type='application/json')  
 	
 	return HttpResponse(json.dumps(data), content_type='application/json')
+
+def remover_comentario(request):
+	print("Entrou")
+	try:
+		id = request.GET.get("id_comentario")
+		c = Comentario.objects.get(id=id)
+		c.delete()
+	except Exception:
+		print("Erro ao deletar comentário")
+		return HttpResponse(json.dumps('Erro ao remover'), content_type='application/json')
+	return HttpResponse(json.dumps('Sucesso ao remover'), content_type='application/json')

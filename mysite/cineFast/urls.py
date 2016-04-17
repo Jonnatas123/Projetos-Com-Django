@@ -5,4 +5,5 @@ urlpatterns = [
     url(r'^$', views.index),
     url(r'^inserir_comentario$', views.inserir_comentario),
     url(r'^listar_comentario$', views.listar_comentario),
+    url(r'^remover_comentario$', views.remover_comentario),
 ]
