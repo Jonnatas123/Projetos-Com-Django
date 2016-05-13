@@ -1,8 +1,11 @@
 from django.shortcuts import render
 from cineFast.Models.Filme import Filme
+from cineFast.Models.Diretor import Diretor
 from cineFast.Models.Comentario import Comentario
 import json
 from django.http import HttpResponse
+from random import randint
+from django.core.files import File
 
 # Create your views here.
 context_padrao = 'cineFast/src/'
@@ -60,5 +63,44 @@ def remover_comentario(request):
 		c.delete()
 	except Exception:
 		print("Erro ao deletar comentário")
+		return HttpResponse(json.dumps('Erro ao remover'), content_type='application/json')
+	return HttpResponse(json.dumps('Sucesso ao remover'), content_type='application/json')
+
+
+def inserir_diretor(request):
+	diretor = Diretor()
+	nome = request.POST.get("nome")
+	if request.POST.get("id") != 'undefined':
+		diretor.id = request.POST.get("id")
+		diretor = Diretor.objects.get(id=diretor.id)
+
+	diretor.nome = nome;
+	print(request.FILES.get("image"));
+	if request.FILES.get("image") != None:
+		imageName = request.FILES.get("image").name = diretor.nome + '-' + str(randint(0,10000))	
+		file = File(request.FILES["image"])
+		diretor.foto.save(imageName+'.png', file, save=True)
+
+	diretor.save()
+	return HttpResponse(json.dumps('1'), content_type='application/json')
+
+def listar_diretor(request):
+	diretores = Diretor.objects.all()
+	data = []
+	for diretor in diretores:
+		data += Diretor.dadosJSON(diretor)
+	if not data:
+		data = '1' 
+	print(data)
+	return HttpResponse(json.dumps(data), content_type='application/json')
+
+def remover_diretor(request):
+	try:
+		id = request.POST.get("id")
+		print(id)
+		d = Diretor.objects.get(id=id)
+		d.delete()
+	except Exception:
+		print("Erro ao deletar diretor")
 		return HttpResponse(json.dumps('Erro ao remover'), content_type='application/json')
 	return HttpResponse(json.dumps('Sucesso ao remover'), content_type='application/json')
